@@ -4,6 +4,7 @@ import (
 	"fmt"
   "os"
   "flag"
+  "strconv"
   "strings"
   "gopkg.in/gookit/color.v1"
   "github.com/johnosullivan/ipu/cidr"
@@ -47,9 +48,21 @@ func main() {
 
   ports := []string{}
 
-  if *portsPtr != "" {
-    ports = strings.Split(*portsPtr, ",")
+  if strings.Contains(*portsPtr, "-") {
+    portRange := strings.Split(*portsPtr, "-")
+    start, _ := strconv.Atoi(portRange[0])
+    end, _ := strconv.Atoi(portRange[1])
+
+    for i := start; i <= end; i++ {
+      ports = append(ports,strconv.FormatInt(int64(i), 10))
+    }
+  } else {
+    if *portsPtr != "" {
+      ports = strings.Split(*portsPtr, ",")
+    }
   }
+
+  fmt.Println(ports);
 
   cidr.CIDRBlockDetails(*cidrBlockPtr, *listIPPtr, ports, *pingTimeoutPtr)
 
