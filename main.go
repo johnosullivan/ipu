@@ -7,19 +7,21 @@ import (
   "net"
   "strings"
   "gopkg.in/gookit/color.v1"
+  "github.com/johnosullivan/ipu/cidr"
 )
 
 var (
-  version = "0.1.0"
+  version = "0.3.0"
 )
 
 func main() {
   helpPtr := flag.Bool("h", false, "")
-  versionPtr := flag.Bool("v", false, "Get the current version on the ipu cli.")
+  versionPtr := flag.Bool("v", false, "Get the current version of the ipu cli.")
   listIPPtr := flag.Bool("l", false, "List all possible IP adddresses within a given a CIDR block.")
-  cidrBlockPtr := flag.String("b", "", "CIDR Block (IPv4), for example: 192.0.0.0/8.")
-  existIPPtr := flag.String("ip", "", "IPv4 Addresses, for example: 192.0.0.0,192.0.0.1,192.0.0.3.")
-
+  cidrBlockPtr := flag.String("sn", "", "CIDR subnet (IPv4/IPv6), for example: 192.0.0.0/8 or 2002::1234:abcd:ffff:c0a8:101/122.")
+  existIPPtr := flag.String("ip", "", "IPv4 Addresses, for example: 192.0.0.0 or 2002::1234:abcd:ffff:c0a8:100.")
+  portsPtr := flag.String("p", "", "")
+  pingTimeoutPtr := flag.Int("pto", 3, "Ping port timeout window in seconds. ")
   flag.Parse()
 
   if *versionPtr {
@@ -32,19 +34,25 @@ func main() {
     os.Exit(0)
   }
 
-  required := []string{"b"}
+  required := []string{"sn"}
 
   seen := make(map[string]bool)
   flag.Visit(func(f *flag.Flag) { seen[f.Name] = true })
   for _, req := range required {
       if !seen[req] {
-          fmt.Fprintf(os.Stderr, "missing required -%s arguments/flags\n", req)
+          fmt.Fprintf(os.Stderr, "Missing required -%s arguments/flags\n", req)
           os.Exit(2)
       }
   }
 
+  ports := []string{}
+
+  if *portsPtr != "" {
+    ports = strings.Split(*portsPtr, ",")
+  }
+
   if *existIPPtr != "" {
-    CIDRBlockDetails(*cidrBlockPtr, *listIPPtr);
+    cidr.CIDRBlockDetails(*cidrBlockPtr, *listIPPtr, ports, *pingTimeoutPtr);
     color.Style{color.FgWhite, color.OpBold}.Println("Range Results")
     clientips := strings.Split(*existIPPtr, ",")
     _, subnet, _ := net.ParseCIDR(*cidrBlockPtr)
@@ -57,6 +65,6 @@ func main() {
         }
     }
   } else {
-    CIDRBlockDetails(*cidrBlockPtr, *listIPPtr);
+    cidr.CIDRBlockDetails(*cidrBlockPtr, *listIPPtr, ports, *pingTimeoutPtr);
   }
 }
