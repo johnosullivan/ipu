@@ -5,6 +5,7 @@ import (
   "log"
   "net"
   "time"
+  "strings"
   "gopkg.in/gookit/color.v1"
 )
 
@@ -72,6 +73,20 @@ func tcpScanner(ip string, ports []string, timeout int) map[string]bool {
         }
     }
     return results
+}
+
+func InCIDRBlock(ips string, cidr string) {
+  color.Style{color.FgWhite, color.OpBold}.Println("Range Results")
+  clientips := strings.Split(ips, ",")
+  _, subnet, _ := net.ParseCIDR(cidr)
+  for _, clientip := range clientips {
+      ip := net.ParseIP(clientip)
+      if subnet.Contains(ip) {
+          color.Green.Println(clientip, " in subnet ", subnet)
+      } else {
+          color.Red.Println(clientip, " not in subnet ", subnet)
+      }
+  }
 }
 
 func CIDRBlockDetails(cdir string, list bool, ports []string, timeout int) {
