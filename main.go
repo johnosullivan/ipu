@@ -62,8 +62,6 @@ func main() {
     }
   }
 
-  fmt.Println(ports);
-
   cidr.CIDRBlockDetails(*cidrBlockPtr, *listIPPtr, ports, *pingTimeoutPtr)
 
   if *existIPPtr != "" {
