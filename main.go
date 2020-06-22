@@ -10,12 +10,10 @@ import (
   "github.com/johnosullivan/ipu/cidr"
 )
 
-var (
-  version = "0.4.0"
-)
+var (version = "0.4.0")
 
 func main() {
-  helpPtr := flag.Bool("h", false, "more info: https://github.com/johnosullivan/ipu")
+  helpPtr := flag.Bool("h", false, "")
   versionPtr := flag.Bool("v", false, "current version (v" + version + ")")
   listIPPtr := flag.Bool("l", false, "list all possible IP adddresses within a given a CIDR block.")
   cidrBlockPtr := flag.String("sn", "", "CIDR subnet (IPv4/IPv6), for example: 192.0.0.0/8 or 2002::1234:abcd:ffff:c0a8:101/122.")
@@ -40,7 +38,7 @@ func main() {
   flag.Visit(func(f *flag.Flag) { seen[f.Name] = true })
   for _, req := range required {
       if !seen[req] {
-          fmt.Fprintf(os.Stderr, "Missing required -%s arguments/flags\n\n", req)
+          fmt.Fprintf(os.Stderr, "missing required -%s arguments/flags\n\n", req)
           flag.PrintDefaults()
           os.Exit(2)
       }
